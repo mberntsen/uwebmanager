@@ -21,46 +21,48 @@ class PageMaker(uweb.DebuggingPageMaker):
     sites_file = os.path.expanduser('~/.uweb/sites.json')
     with open(sites_file, 'r') as f:
       sites = simplejson.load(f)
-    if self.post.getfirst('action'):
-      action = self.post.getfirst('action')
-      if action in ('start', 'stop', 'restart'):
-        sitename = self.post.getfirst('site')
-        if sitename != 'uwebmanager':
-          router = sites[sitename]['router']
-          workdir = sites[sitename]['workdir']
-          subprocess.Popen(['python', '-m', router, action], cwd=workdir).wait()
-        else:
-          message = 'Cannot stop manager itself :)'
-      else:
-        message = 'Invalid action (%s)' % action
+    postaction = self.post.getfirst('action', None)
+    if postaction not in ('start', 'stop', 'restart', None):
+      message = 'Invalid action (%s)' % postaction
+    postsite = self.post.getfirst('site', None)
+    if postsite == 'uwebmanager':
+      postside = None
+      message = 'Cannot manage the manager this way:)'
 
     sites2 = []
-    for key, value in sites.items():
-      value['key'] = key
-      paths = [value['workdir']] + sys.path
-      for path in paths:
-        filename = path + '/' + value['router'].replace('.', '/') + '.py'
-        try:
-          with open(filename, 'r') as f:
-            code = f.read()
-          m = re.search('PACKAGE = \'([a-z_]*)\'', code)
-          packagename = m.group(1)
-          routername = value['router'].split('.')[-1]
-          pidfile = '/var/lock/underdark/' + packagename + '/' + routername + '.pid'
-          if os.path.exists(pidfile):
-            value['status'] = 'Running'
-            value['class'] = 'success'
-          else:
-            value['status'] = 'Stopped'
-            value['class'] = 'error'
-          break
-        except IOError:
-          pass
-        except:
-          value['status'] = 'Dunno'
-          value['class'] = ''
+    for key in sorted(sites.keys()):
+      value = sites[key]
+      value['name'] = key
+      if key == postsite:
+        router = value['router']
+        workdir = value['workdir']
+        w = subprocess.Popen(['python', '-m', router, postaction], cwd=workdir).wait()
+        if postaction in ('start', 'restart') and w == 0:
+          value['status'] = 'Running'
+        else:
+          value['status'] = 'Stopped'
+      else:
+        paths = [value['workdir']] + sys.path
+        for path in paths:
+          filename = path + '/' + value['router'].replace('.', '/') + '.py'
+          try:
+            with open(filename, 'r') as f:
+              code = f.read()
+            m = re.search('PACKAGE = \'([a-z_]*)\'', code)
+            packagename = m.group(1)
+            routername = value['router'].split('.')[-1]
+            pidfile = '/var/lock/underdark/' + packagename + '/' + routername + '.pid'
+            if os.path.exists(pidfile):
+              value['status'] = 'Running'
+            else:
+              value['status'] = 'Stopped'
+            break
+          except IOError:
+            pass
+          except:
+            value['status'] = 'Dunno'
       sites2 = sites2 + [value]
-    return self.parser.Parse('index.utp', sites=sites2, message=message)
+    return self.parser.Parse('index.utp', sites=sites2, message=message, sites_file=sites_file)
 
   def FourOhFour(self, path):
     """The request could not be fulfilled, this returns a 404."""

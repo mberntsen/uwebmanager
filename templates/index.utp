@@ -14,7 +14,7 @@
           <p>[message]</p>
           <a class="button" href="/">Refresh</a>
           <table>
-            <caption>Sites configured in sites.json</caption>
+            <caption>Sites configured in [sites_file]</caption>
             <thead>
               <tr>
                 <th>Sitename</th>
@@ -27,13 +27,17 @@
             <tbody>
               {{ for site in [sites] }}
               <tr>
-                <td>[site:key]</td>
-                <td class="[site:class]">[site:status]</td>
+                <td>[site:name]</td>
+                {{ if [site:status] == 'Running' }}
+                <td class="success">[site:status]</td>
+                {{ elif [site:status] == 'Stopped' }}
+                <td class="error">[site:status]</td>
+                {{ endif }}
                 <td>[site:router]</td>
                 <td>[site:workdir]</td>
                 <td>
                   <form method="post">
-                    <input type="hidden" name="site" value="[site:key]">
+                    <input type="hidden" name="site" value="[site:name]">
                     <input type="submit" name="action" value="start">
                     <input type="submit" name="action" value="stop">
                     <input type="submit" name="action" value="restart">
