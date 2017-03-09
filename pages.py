@@ -26,7 +26,7 @@ class PageMaker(uweb.DebuggingPageMaker):
       message = 'Invalid action (%s)' % postaction
     postsite = self.post.getfirst('site', None)
     if postsite == 'uwebmanager':
-      postside = None
+      postsite = None
       message = 'Cannot manage the manager this way:)'
 
     sites2 = []
