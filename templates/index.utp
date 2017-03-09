@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>µWeb base project</title>
+    <link href="http://css.underdark.nl/stable/base.css" rel="stylesheet">
+    <link href="http://css.underdark.nl/stable/layout.css" rel="stylesheet">
+    <link href="http://css.underdark.nl/stable/module.css" rel="stylesheet">
+  </head>
+  <body>
+    <main>
+      <div>
+        <section>
+          <h1>uweb Sites</h1>
+          <p>[message]</p>
+          <a class="button" href="/">Refresh</a>
+          <table>
+            <caption>Sites configured in sites.json</caption>
+            <thead>
+              <tr>
+                <th>Sitename</th>
+                <th>Status</th>
+                <th>Router</th>
+                <th>Workdir</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ for site in [sites] }}
+              <tr>
+                <td>[site:key]</td>
+                <td class="[site:class]">[site:status]</td>
+                <td>[site:router]</td>
+                <td>[site:workdir]</td>
+                <td>
+                  <form method="post">
+                    <input type="hidden" name="site" value="[site:key]">
+                    <input type="submit" name="action" value="start">
+                    <input type="submit" name="action" value="stop">
+                    <input type="submit" name="action" value="restart">
+                  </form>
+                </td>
+              </tr>
+            {{ endfor }}
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
