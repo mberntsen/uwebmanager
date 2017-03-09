@@ -18,7 +18,8 @@ class PageMaker(uweb.DebuggingPageMaker):
   def Index(self):
     """Returns the index.html template"""
     message = ''
-    with open('/home/martijn/.uweb/sites.json', 'r') as f:
+    sites_file = os.path.expanduser('~/.uweb/sites.json')
+    with open(sites_file, 'r') as f:
       sites = simplejson.load(f)
     if self.post.getfirst('action'):
       action = self.post.getfirst('action')
