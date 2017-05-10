@@ -28,10 +28,14 @@
               {{ for site in [sites] }}
               <tr>
                 <td>[site:name]</td>
-                {{ if [site:status] == 'Running' }}
+                {{ if 'status' in [site] }}
+                  {{ if [site:status] == 'Running' }}
                 <td class="success">[site:status]</td>
-                {{ elif [site:status] == 'Stopped' }}
+                  {{ elif [site:status] == 'Stopped' }}
                 <td class="error">[site:status]</td>
+                  {{ endif }}
+                {{ else }}
+                <td class="error">Unknown</td>
                 {{ endif }}
                 <td>[site:router]</td>
                 <td>[site:workdir]</td>
